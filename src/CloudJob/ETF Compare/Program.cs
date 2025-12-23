@@ -21,7 +21,7 @@ class Program
     {
 
         Console.WriteLine("======================================");
-        Console.WriteLine("🚀 自動部署測試成功！版本更新時間：" + DateTime.Now.ToString());
+        Console.WriteLine(" 自動部署測試成功！版本更新時間：" + DateTime.Now.ToString());
         Console.WriteLine("======================================");
 
         // 註冊編碼提供者 (讓 Linux 容器看得懂 Big5 中文)
@@ -61,7 +61,7 @@ class Program
 
         if (allFiles.Count < 2)
         {
-            Console.WriteLine("❌ 檔案數量不足兩個。");
+            Console.WriteLine(" 檔案數量不足兩個。");
             return;
         }
 
@@ -140,14 +140,14 @@ class Program
 
             UploadToGcs(fullOutputPath, bucketName, cloudFileName);
             Console.WriteLine(new string('=', 50));
-            Console.WriteLine($"✅ 成功！分析結果已存至:");
-            Console.WriteLine($"👉 {fullOutputPath}");
+            Console.WriteLine($" 成功！分析結果已存至:");
+            Console.WriteLine($" {fullOutputPath}");
             Console.WriteLine(new string('=', 50));
         }
         catch (Exception ex)
         {
             // [新增: 異常處理，避免權限不足或路徑錯誤導致程式崩潰]
-            Console.WriteLine($"❌ 寫入檔案失敗: {ex.Message}");
+            Console.WriteLine($"寫入檔案失敗: {ex.Message}");
         }
 
         sw.Stop();
@@ -261,11 +261,11 @@ class Program
             {
                 storage.UploadObject(bucketName, objectName, null, fileStream);
             }
-            Console.WriteLine($"[成功] ✅ 檔案已上傳！");
+            Console.WriteLine($"[成功]  檔案已上傳！");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[錯誤] ❌ 上傳失敗: {ex.Message}");
+            Console.WriteLine($"[錯誤]  上傳失敗: {ex.Message}");
         }
     }
 }
