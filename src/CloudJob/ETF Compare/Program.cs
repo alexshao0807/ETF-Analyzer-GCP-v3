@@ -19,10 +19,15 @@ class Program
 {
     static void Main()
     {
-        // ★ 修改點 1: 註冊編碼提供者 (讓 Linux 容器看得懂 Big5 中文)
+
+        Console.WriteLine("======================================");
+        Console.WriteLine("🚀 自動部署測試成功！版本更新時間：" + DateTime.Now.ToString());
+        Console.WriteLine("======================================");
+
+        // 註冊編碼提供者 (讓 Linux 容器看得懂 Big5 中文)
         System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
-        // [新增: 啟動碼表]
+        // 新增: 啟動碼表
         Stopwatch sw = new Stopwatch();
         sw.Start();
         Console.WriteLine($"[0 ms] 程式啟動...");
@@ -34,9 +39,9 @@ class Program
         string outputPath = Path.Combine(baseDir, "output");     // 輸出資料夾
         // 1. 設定路徑
         //string folderPath = @"C:\Users\2500771\Desktop\ETF\etf data";
-        // [新增: 設定輸出路徑]
+        // 新增: 設定輸出路徑
         //string outputPath = @"C:\Users\2500771\Desktop\ETF\etf output";
-        // [新增: 自動檢查並建立輸出資料夾，避免程式報錯]
+        // 新增: 自動檢查並建立輸出資料夾，避免程式報錯
 
         Console.WriteLine($"[資訊] 讀取資料路徑: {folderPath}");
         Console.WriteLine($"[資訊] 輸出報告路徑: {outputPath}");
