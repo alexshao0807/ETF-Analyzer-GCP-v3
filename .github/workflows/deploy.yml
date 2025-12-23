@@ -38,7 +38,8 @@ jobs:
 
       # 3. 建置並推送 Docker Image
       # 這會把你的程式碼打包成 :v2，並強制覆蓋掉雲端舊的 v2
-      - name: Build and Push Docker Image
+     - name: Build and Push Docker Image
         run: |
-          docker build -t ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE }}:${{ env.TAG }} ./src
+          # 使用引號包裹路徑，處理「ETF Compare」中間的空格
+          docker build -t ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE }}:${{ env.TAG }} -f "./src/CloudJob/ETF Compare/Dockerfile" ./src
           docker push ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE }}:${{ env.TAG }}
