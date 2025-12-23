@@ -1,0 +1,51 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: etf-analysis-job
+spec:
+  template:
+    spec:
+      # --- 1. 搬運工 (Init Container) ---
+      initContainers:
+      - name: downloader
+        image: google/cloud-sdk:slim
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            echo "正在從雲端倉庫下載 Excel 檔案..."
+            gsutil cp gs://etf-data-adroit-cortex-482002-k4/*.xlsx /shared-data/
+            ls -l /shared-data/
+        volumeMounts:
+        - name: data-volume
+          mountPath: /shared-data
+
+      # --- 2. 主程式 (Main Container) ---
+      containers:
+      - name: etf-app
+        #  使用剛剛推上去的 v2 版本
+        image: asia-east1-docker.pkg.dev/adroit-cortex-482002-k4/etf-repo/etf-job:v2
+        imagePullPolicy: Always
+        
+        #  設定環境變數，告訴 C# 程式金鑰在哪
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: "/var/secrets/google/key.json"
+
+        volumeMounts:
+        - name: data-volume
+          mountPath: /app/data
+        # 修改點 3: 掛載金鑰檔案
+        - name: google-cloud-key
+          mountPath: /var/secrets/google
+          readOnly: true
+      
+      # --- 3. 定義 Volume ---
+      volumes:
+      - name: data-volume
+        emptyDir: {}
+      # 修改點 4: 定義金鑰來源 (從 Secret 抓)
+      - name: google-cloud-key
+        secret:
+          secretName: gcs-key
+
+      restartPolicy: Never

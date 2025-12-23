@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36518.9
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ETF Compare", "src\CloudJob\ETF Compare\ETF Compare.csproj", "{7BA85376-F1EB-51AD-FFD4-6D079DCB9AAA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ETF_Uploader", "src\Client\ETF_Uploader\ETF_Uploader\ETF_Uploader.csproj", "{D69AEFFC-BC25-484A-BB36-826CCD90CE57}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7BA85376-F1EB-51AD-FFD4-6D079DCB9AAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7BA85376-F1EB-51AD-FFD4-6D079DCB9AAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7BA85376-F1EB-51AD-FFD4-6D079DCB9AAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7BA85376-F1EB-51AD-FFD4-6D079DCB9AAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D69AEFFC-BC25-484A-BB36-826CCD90CE57}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D69AEFFC-BC25-484A-BB36-826CCD90CE57}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D69AEFFC-BC25-484A-BB36-826CCD90CE57}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D69AEFFC-BC25-484A-BB36-826CCD90CE57}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {57BF514D-0192-4A75-81B0-41FA199A7256}
+	EndGlobalSection
+EndGlobal
