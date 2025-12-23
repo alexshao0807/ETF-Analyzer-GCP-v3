@@ -175,6 +175,11 @@ namespace ETF_Uploader
                 btnCompare.Enabled = true;
                 btnCompare.Text = "比較";
                 LogHelper.Write("=== 流程結束 ===");
+                //直接賦予空字串 (最常用)
+                txtYesterday.Text = "";
+                txtToday.Text = "";
+                txtYesterday.Focus();
+                txtToday.Focus();
             }
         }
 
