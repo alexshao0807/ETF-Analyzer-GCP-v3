@@ -9,10 +9,10 @@ using System.Diagnostics;
 using Google.Cloud.Storage.V1; // 新增這行
 public class StockItem
 {
-    public string Symbol { get; set; } //股票代號
-    public string Name { get; set; } // 股票名稱
+    public string Symbol { get; set; } = string.Empty;//股票代號
+    public string Name { get; set; } = string.Empty; // 股票名稱
     public decimal Shares { get; set; } //股數
-    public string Weight { get; set; }//權重
+    public string Weight { get; set; } = string.Empty;//權重
 }
 
 class Program
@@ -169,7 +169,7 @@ class Program
         string ext = Path.GetExtension(filePath).ToLower();
         if (ext == ".csv") return ReadCsv(filePath);
         if (ext == ".xlsx") return ReadXlsx(filePath);
-        return new List<StockItem>();
+        return new List<StockItem>(); // 修正：return 空的 List<StockItem> 而不是 return;
     }
 
     static string CleanSymbol(string input)
@@ -223,7 +223,16 @@ class Program
         using (var workbook = new XLWorkbook(filePath))
         {
             var sheet = workbook.Worksheet(1);
-            var rows = sheet.RangeUsed().RowsUsed();// 抓取「所有」有資料的行
+            // 1. 先抓取使用範圍
+            var range = sheet.RangeUsed();
+            // 將 MessageBox.Show 改為 Console.WriteLine，避免使用不存在的 MessageBox
+            if (range == null)
+            {
+                Console.WriteLine("Excel 檔案內容是空的！(警告)");
+                return list;
+            }
+
+            var rows = range.RowsUsed();// 抓取「所有」有資料的行
 
             bool isHeaderFound = false;//1.初始化旗標，預設為「尚未找到標題
             foreach (var row in rows)
