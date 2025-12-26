@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ETF_Uploader.Services
@@ -36,6 +34,27 @@ namespace ETF_Uploader.Services
             return RunCommand($"kubectl delete job {_jobName} --ignore-not-found");
         }
 
+
+        /// <summary>
+        /// (非同步版) 執行 kubectl apply
+        /// </summary>
+        public async Task<string> ApplyJobAsync(string yamlPath)
+        {
+            if (!File.Exists(yamlPath))
+                throw new FileNotFoundException($"找不到 YAML 檔案：{yamlPath}");
+
+            // 把 RunCommand 丟到背景執行緒去跑，不卡住 UI
+            return await Task.Run(() => RunCommand($"kubectl apply -f \"{yamlPath}\""));
+        }
+
+        /// <summary>
+        /// (非同步版) 執行 kubectl delete
+        /// </summary>
+        public async Task<string> DeleteJobAsync()
+        {
+            // 一樣丟到背景
+            return await Task.Run(() => RunCommand($"kubectl delete job {_jobName} --ignore-not-found"));
+        }
         /// <summary>
         /// 私有的指令執行器
         /// </summary>
