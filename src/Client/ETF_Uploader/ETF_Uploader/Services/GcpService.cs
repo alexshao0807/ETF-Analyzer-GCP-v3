@@ -1,9 +1,6 @@
 ﻿using Google.Cloud.Storage.V1;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ETF_Uploader.Services
@@ -41,6 +38,23 @@ namespace ETF_Uploader.Services
             using (var fileStream = File.OpenRead(localFilePath))
             {
                 _storageClient.UploadObject(_bucketName, fileName, null, fileStream);
+            }
+        }
+
+        /// <summary>
+        /// (非同步版) 上傳單一檔案到 GCS
+        /// </summary>
+        public async Task UploadFileAsync(string localFilePath)
+        {
+            if (!File.Exists(localFilePath))
+                throw new FileNotFoundException($"找不到要上傳的檔案：{localFilePath}");
+
+            string fileName = Path.GetFileName(localFilePath);
+
+            using (var fileStream = File.OpenRead(localFilePath))
+            {
+                // 這裡改用 UploadObjectAsync，並加上 await
+                await _storageClient.UploadObjectAsync(_bucketName, fileName, null, fileStream);
             }
         }
     }

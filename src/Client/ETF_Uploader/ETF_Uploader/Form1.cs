@@ -1,10 +1,11 @@
-﻿using Google.Cloud.Storage.V1;
+﻿using ETF_Uploader.Services; // 加入這行
+using Google.Cloud.Storage.V1;
 using System;
+using System.Configuration; // 讀 App.config
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using System.Configuration; // 讀 App.config
-using ETF_Uploader.Services; // 加入這行
+using System.Threading.Tasks; // 這樣程式才認得 Task
 
 namespace ETF_Uploader
 {
@@ -112,14 +113,7 @@ namespace ETF_Uploader
 
 
 
-        private void UploadSingleFile(StorageClient storage, string localPath)
-        {
-            using (var fileStream = File.OpenRead(localPath))
-            {
-                string fileName = Path.GetFileName(localPath);
-                storage.UploadObject(BucketName, fileName, null, fileStream);
-            }
-        }
+
 
         // --- 3. 比較按鈕 (上傳並觸發) ---
         private async void btnCompare_Click_1(object sender, EventArgs e)
@@ -147,18 +141,21 @@ namespace ETF_Uploader
             {
                 // --- 2. 上傳檔案到雲端 ---
                 // 原本好幾行的上傳邏輯，現在變成這兩行
-                _gcpService.UploadFile(txtYesterday.Text);
-                _gcpService.UploadFile(txtToday.Text);
+               var task1 =  _gcpService.UploadFileAsync(txtYesterday.Text);
+                var task2 = _gcpService.UploadFileAsync(txtToday.Text);
 
+                await Task.WhenAll(task1, task2); // 等兩個都傳完
                 LogHelper.Write(" Excel 檔案上傳至 GCS 成功");
                 // --- 3. 觸發 K8s 任務 ---
                 //string yamlPath = @"C:\Users\2500771\Desktop\ETF\ETF\ETF Compare\k8s\job.yaml"; // 確認 YAML 路徑
                 // 刪除舊任務
-                string deleteResult = _k8sService.DeleteJob();
+                //string deleteResult = _k8sService.DeleteJob();
+                string deleteResult = await _k8sService.DeleteJobAsync();
                 LogHelper.Write($"[K8s] {deleteResult}");
 
                 // 啟動新任務
-                string applyResult = _k8sService.ApplyJob(YamlPath);
+                //string applyResult = _k8sService.ApplyJob(YamlPath);
+                string applyResult = await _k8sService.ApplyJobAsync(YamlPath);
                 LogHelper.Write($"[K8s] Job 啟動成功");
                 // --- 4. 等待與下載 (Polling 核心) ---
                 // 最多等待 60 秒，每 3 秒檢查一次
