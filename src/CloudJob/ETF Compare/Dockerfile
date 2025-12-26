@@ -20,7 +20,7 @@ RUN dotnet publish "ETF Compare.csproj" -c Release -o /app/publish
 FROM mcr.microsoft.com/dotnet/runtime:8.0
 WORKDIR /app
 
-# ★★★ 保留你的關鍵修正：安裝 libgdiplus ★★★
+#  保留你的關鍵修正：安裝 libgdiplus 
 RUN apt-get update && \
     apt-get install -y libgdiplus libc6-dev && \
     apt-get clean && \
@@ -32,5 +32,5 @@ COPY --from=build /app/publish .
 # 預先建立資料夾，確保權限正確
 RUN mkdir -p /app/data && mkdir -p /app/output
 
-# ★ 設定程式入口 (使用引號處理空格)
+#  設定程式入口 (使用引號處理空格)
 ENTRYPOINT ["dotnet", "ETF Compare.dll"]

@@ -10,14 +10,29 @@ namespace ETF_Uploader
     {
         // 設定 Bucket 與 金鑰
         private const string BucketName = "etf-data-adroit-cortex-482002-k4";
-        private const string JsonKeyPath = @"C:\Users\2500771\Downloads\adroit-cortex-482002-k4-5661a09d1270.json";
+        private string JsonKeyPath; //用來存金鑰路徑
         // 設定下載的目標資料夾
-        private const string DownloadFolderPath = @"C:\Users\2500771\Desktop\ETF\k8s output";
+        private  string DownloadFolderPath;//用來存下載資料夾路徑
+        private string YamlPath;//用來存 YAML 路徑
 
         public Form1()
         {
             InitializeComponent();
 
+            // --- 自動抓路徑，先取得執行目錄，並組合出金鑰與 YAML 路徑 ---
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            JsonKeyPath = Path.Combine(baseDir, "key.json");
+            YamlPath = Path.Combine(baseDir, "job.yaml");
+            DownloadFolderPath = Path.Combine(baseDir, "k8s_output");
+            if (!File.Exists(JsonKeyPath))
+            {
+                MessageBox.Show($"找不到金鑰檔案！\n請確認 key.json 是否在資料夾中：\n{baseDir}", "遺失檔案");
+            }
+
+            if(!File.Exists(YamlPath))
+            {
+                MessageBox.Show($"找不到 Kubernetes YAML 檔案！\n請確認 job.yaml 是否在資料夾中：\n{baseDir}", "遺失檔案");
+            }
             // --- 綁定瀏覽按鈕事件 ---
             btnBrowseYesterday.Click += (s, e) => SelectFile(txtYesterday);
             btnBrowseToday.Click += (s, e) => SelectFile(txtToday);
@@ -126,14 +141,14 @@ namespace ETF_Uploader
 
                 LogHelper.Write(" Excel 檔案上傳至 GCS 成功");
                 // --- 3. 觸發 K8s 任務 ---
-                string yamlPath = @"C:\Users\2500771\Desktop\ETF\ETF\ETF Compare\k8s\job.yaml"; // 確認 YAML 路徑
+                //string yamlPath = @"C:\Users\2500771\Desktop\ETF\ETF\ETF Compare\k8s\job.yaml"; // 確認 YAML 路徑
 
                 LogHelper.Write("正在觸發 Kubernetes Job...");
                 // 刪除舊任務 (忽略找不到的錯誤)
                 RunCommand("kubectl delete job etf-analysis-job --ignore-not-found");
 
                 // 啟動新任務
-                RunCommand($"kubectl apply -f \"{yamlPath}\"");
+                RunCommand($"kubectl apply -f \"{YamlPath}\"");
                 LogHelper.Write(" K8s Job 已啟動");
                 // --- 4. 等待與下載 (Polling 核心) ---
                 // 最多等待 60 秒，每 3 秒檢查一次
