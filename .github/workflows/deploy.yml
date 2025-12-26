@@ -1,18 +1,18 @@
 name: Deploy CloudJob to Artifact Registry (v2)
 
-on:
+on: #觸發條件(有push 到 master這個動作時觸發)
   push:
-    branches: [ "master" ]
+    branches: [ "master","refactor-services" ]
   workflow_dispatch:
 
-env:
+env: #宣告變數
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   GAR_LOCATION: asia-east1
   REPOSITORY: etf-repo
   IMAGE: etf-job
   TAG: v2
 
-jobs:
+jobs: #定義各種要執行的job
   build-push-artifact:
     runs-on: ubuntu-latest
     steps:
