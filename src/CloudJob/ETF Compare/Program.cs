@@ -43,7 +43,7 @@ class Program
         //string outputPath = @"C:\Users\2500771\Desktop\ETF\etf output";
         // 新增: 自動檢查並建立輸出資料夾，避免程式報錯
 
-        Console.WriteLine($"[資訊] 讀取資料路徑: {folderPath}");
+        Console.WriteLine($"[資訊] 讀取資料路徑1: {folderPath}");
         Console.WriteLine($"[資訊] 輸出報告路徑: {outputPath}");
         if (!Directory.Exists(folderPath))
         {
