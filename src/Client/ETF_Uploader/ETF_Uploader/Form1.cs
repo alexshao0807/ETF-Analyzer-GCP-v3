@@ -29,13 +29,14 @@ namespace ETF_Uploader
             JobName = ConfigurationManager.AppSettings["K8sJobName"] ?? "etf-analysis-job";
             string outputFolder = ConfigurationManager.AppSettings["DownloadFolder"] ?? "k8s_output";
 
-            _k8sService = new K8sService(JobName);
-            _gcpService = new GcpService(JsonKeyPath, BucketName);
+            
             // --- 自動抓路徑，先取得執行目錄，並組合出金鑰與 YAML 路徑 ---
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
             JsonKeyPath = Path.Combine(baseDir, "key.json");
             YamlPath = Path.Combine(baseDir, "job.yaml");
             DownloadFolderPath = Path.Combine(baseDir, outputFolder);
+            _k8sService = new K8sService(JobName);
+            _gcpService = new GcpService(JsonKeyPath, BucketName);
             if (!File.Exists(JsonKeyPath))
             {
                 MessageBox.Show($"找不到金鑰檔案！\n請確認 key.json 是否在資料夾中：\n{baseDir}", "遺失檔案");

@@ -17,6 +17,12 @@ namespace ETF_Uploader.Services
         {
             _bucketName = bucketName;
 
+            if (!File.Exists(jsonKeyPath))
+            {
+                // 如果找不到檔案，直接丟出中文錯誤，並顯示它到底在找哪個路徑
+                throw new FileNotFoundException($"找不到金鑰檔案！\n程式預期路徑是：{jsonKeyPath}");
+            }
+
             // 設定權限環境變數
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", jsonKeyPath);
             _storageClient = StorageClient.Create();
