@@ -26,16 +26,19 @@ namespace ETF_Uploader
         {
             InitializeComponent();
 
-            BucketName = ConfigurationManager.AppSettings["GcpBucketName"] ?? "預設Bucket名稱";
-            JobName = ConfigurationManager.AppSettings["K8sJobName"] ?? "etf-analysis-job";
-            string outputFolder = ConfigurationManager.AppSettings["DownloadFolder"] ?? "k8s_output";
+            string bucketFromConfig = ConfigurationManager.AppSettings["GcpBucketName"];
+            string jobFromConfig = ConfigurationManager.AppSettings["K8sJobName"];
+            string downloadFolderFromConfig = ConfigurationManager.AppSettings["DownloadFolder"];
+            //BucketName = ConfigurationManager.AppSettings["GcpBucketName"] ?? "預設Bucket名稱";
+            //JobName = ConfigurationManager.AppSettings["K8sJobName"] ?? "etf-analysis-job";
+            // outputFolder = ConfigurationManager.AppSettings["DownloadFolder"] ?? "k8s_output";
 
             
             // --- 自動抓路徑，先取得執行目錄，並組合出金鑰與 YAML 路徑 ---
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
             JsonKeyPath = Path.Combine(baseDir, "key.json");
             YamlPath = Path.Combine(baseDir, "job.yaml");
-            DownloadFolderPath = Path.Combine(baseDir, outputFolder);
+            DownloadFolderPath = Path.Combine(baseDir, downloadFolderFromConfig);
             _k8sService = new K8sService(JobName);
             _gcpService = new GcpService(JsonKeyPath, BucketName);
             if (!File.Exists(JsonKeyPath))

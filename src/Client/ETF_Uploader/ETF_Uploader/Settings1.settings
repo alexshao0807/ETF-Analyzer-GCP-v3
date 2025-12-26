@@ -1,0 +1,15 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="ETF_Uploader" GeneratedClassName="Settings1">
+  <Profiles />
+  <Settings>
+    <Setting Name="GcpBucketName" Type="System.String" Scope="User">
+      <Value Profile="(Default)">etf-data-adroit-cortex-482002-k4</Value>
+    </Setting>
+    <Setting Name="K8sJobName" Type="System.String" Scope="User">
+      <Value Profile="(Default)">etf-analysis-job</Value>
+    </Setting>
+    <Setting Name="DownloadFolderName" Type="System.String" Scope="User">
+      <Value Profile="(Default)">k8s_output</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
