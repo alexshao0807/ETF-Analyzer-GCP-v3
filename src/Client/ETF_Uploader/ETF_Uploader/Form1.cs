@@ -3,15 +3,17 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using System.Configuration; // 讀 App.config
 
 namespace ETF_Uploader
 {
     public partial class Form1 : Form
     {
         // 設定 Bucket 與 金鑰
-        private const string BucketName = "etf-data-adroit-cortex-482002-k4";
+        private readonly string  BucketName;
+        private readonly string JobName;
+
         private string JsonKeyPath; //用來存金鑰路徑
-        // 設定下載的目標資料夾
         private  string DownloadFolderPath;//用來存下載資料夾路徑
         private string YamlPath;//用來存 YAML 路徑
 
@@ -19,11 +21,14 @@ namespace ETF_Uploader
         {
             InitializeComponent();
 
+            BucketName = ConfigurationManager.AppSettings["GcpBucketName"] ?? "預設Bucket名稱";
+            JobName = ConfigurationManager.AppSettings["K8sJobName"] ?? "etf-analysis-job";
+            string outputFolder = ConfigurationManager.AppSettings["DownloadFolder"] ?? "k8s_output";
             // --- 自動抓路徑，先取得執行目錄，並組合出金鑰與 YAML 路徑 ---
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
             JsonKeyPath = Path.Combine(baseDir, "key.json");
             YamlPath = Path.Combine(baseDir, "job.yaml");
-            DownloadFolderPath = Path.Combine(baseDir, "k8s_output");
+            DownloadFolderPath = Path.Combine(baseDir, outputFolder);
             if (!File.Exists(JsonKeyPath))
             {
                 MessageBox.Show($"找不到金鑰檔案！\n請確認 key.json 是否在資料夾中：\n{baseDir}", "遺失檔案");
@@ -145,7 +150,7 @@ namespace ETF_Uploader
 
                 LogHelper.Write("正在觸發 Kubernetes Job...");
                 // 刪除舊任務 (忽略找不到的錯誤)
-                RunCommand("kubectl delete job etf-analysis-job --ignore-not-found");
+                RunCommand($"kubectl delete job {JobName} --ignore-not-found");
 
                 // 啟動新任務
                 RunCommand($"kubectl apply -f \"{YamlPath}\"");
