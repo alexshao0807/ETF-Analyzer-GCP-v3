@@ -172,10 +172,18 @@ namespace ETF_Uploader
 
                     // 嘗試去抓「比 operationStartTime 還要新」的報告
                     // 如果抓到了，這個函式會回傳 true
-                    if (TryDownloadReport(operationStartTime))
+                    //檢查與下載丟到背景執行續跑
+                    bool result = await Task.Run(() =>
+                    {
+                        // 這裡是在背景跑，所以不能碰 UI 元件 (例如不能寫 btn.Text = ...)
+                        // 但執行下載邏輯是沒問題的
+                        return TryDownloadReport(operationStartTime);
+                    });
+                    // 3. 檢查結果 (回到主執行緒)
+                    if (result)
                     {
                         isSuccess = true;
-                        break; // 成功了！跳出迴圈
+                        break; // 成功了！
                     }
                 }
 
