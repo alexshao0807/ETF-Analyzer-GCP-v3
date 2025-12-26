@@ -26,12 +26,10 @@ namespace ETF_Uploader
         {
             InitializeComponent();
 
-            string bucketName = Settings1.Default.GcpBucketName;
-            string jobName = Settings1.Default.K8sJobName;
-            string folderName = Settings1.Default.DownloadFolderName;
-            //BucketName = ConfigurationManager.AppSettings["GcpBucketName"] ?? "預設Bucket名稱";
-            //JobName = ConfigurationManager.AppSettings["K8sJobName"] ?? "etf-analysis-job";
-            // outputFolder = ConfigurationManager.AppSettings["DownloadFolder"] ?? "k8s_output";
+       
+            BucketName = ConfigurationManager.AppSettings["GcpBucketName"] ?? "預設Bucket名稱";
+            JobName = ConfigurationManager.AppSettings["K8sJobName"] ?? "etf-analysis-job";
+             string outputFolder = ConfigurationManager.AppSettings["DownloadFolder"] ?? "k8s_output";
 
 
             // --- 自動抓路徑，先取得執行目錄，並組合出金鑰與 YAML 路徑 ---
@@ -39,9 +37,9 @@ namespace ETF_Uploader
             JsonKeyPath = Path.Combine(baseDir, "key.json");
             YamlPath = Path.Combine(baseDir, "job.yaml");
 
-            DownloadFolderPath = Path.Combine(baseDir, folderName);
-            _k8sService = new K8sService(jobName);
-            _gcpService = new GcpService(JsonKeyPath, bucketName);
+            DownloadFolderPath = Path.Combine(baseDir, outputFolder);
+            _k8sService = new K8sService(JobName);
+            _gcpService = new GcpService(JsonKeyPath, BucketName);
             if (!File.Exists(JsonKeyPath))
             {
                 MessageBox.Show($"找不到金鑰檔案！\n請確認 key.json 是否在資料夾中：\n{baseDir}", "遺失檔案");
