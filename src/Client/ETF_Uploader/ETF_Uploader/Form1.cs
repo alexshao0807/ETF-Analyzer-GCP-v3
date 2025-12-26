@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using System.Configuration; // 讀 App.config
+using ETF_Uploader.Services; // 加入這行
 
 namespace ETF_Uploader
 {
@@ -12,6 +13,9 @@ namespace ETF_Uploader
         // 設定 Bucket 與 金鑰
         private readonly string  BucketName;
         private readonly string JobName;
+
+        private K8sService _k8sService;
+        private GcpService _gcpService;
 
         private string JsonKeyPath; //用來存金鑰路徑
         private  string DownloadFolderPath;//用來存下載資料夾路徑
@@ -24,11 +28,15 @@ namespace ETF_Uploader
             BucketName = ConfigurationManager.AppSettings["GcpBucketName"] ?? "預設Bucket名稱";
             JobName = ConfigurationManager.AppSettings["K8sJobName"] ?? "etf-analysis-job";
             string outputFolder = ConfigurationManager.AppSettings["DownloadFolder"] ?? "k8s_output";
+
+            
             // --- 自動抓路徑，先取得執行目錄，並組合出金鑰與 YAML 路徑 ---
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
             JsonKeyPath = Path.Combine(baseDir, "key.json");
             YamlPath = Path.Combine(baseDir, "job.yaml");
             DownloadFolderPath = Path.Combine(baseDir, outputFolder);
+            _k8sService = new K8sService(JobName);
+            _gcpService = new GcpService(JsonKeyPath, BucketName);
             if (!File.Exists(JsonKeyPath))
             {
                 MessageBox.Show($"找不到金鑰檔案！\n請確認 key.json 是否在資料夾中：\n{baseDir}", "遺失檔案");
@@ -138,23 +146,20 @@ namespace ETF_Uploader
             try
             {
                 // --- 2. 上傳檔案到雲端 ---
-                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", JsonKeyPath);
-                var storage = StorageClient.Create();
-
-                UploadSingleFile(storage, txtYesterday.Text);
-                UploadSingleFile(storage, txtToday.Text);
+                // 原本好幾行的上傳邏輯，現在變成這兩行
+                _gcpService.UploadFile(txtYesterday.Text);
+                _gcpService.UploadFile(txtToday.Text);
 
                 LogHelper.Write(" Excel 檔案上傳至 GCS 成功");
                 // --- 3. 觸發 K8s 任務 ---
                 //string yamlPath = @"C:\Users\2500771\Desktop\ETF\ETF\ETF Compare\k8s\job.yaml"; // 確認 YAML 路徑
-
-                LogHelper.Write("正在觸發 Kubernetes Job...");
-                // 刪除舊任務 (忽略找不到的錯誤)
-                RunCommand($"kubectl delete job {JobName} --ignore-not-found");
+                // 刪除舊任務
+                string deleteResult = _k8sService.DeleteJob();
+                LogHelper.Write($"[K8s] {deleteResult}");
 
                 // 啟動新任務
-                RunCommand($"kubectl apply -f \"{YamlPath}\"");
-                LogHelper.Write(" K8s Job 已啟動");
+                string applyResult = _k8sService.ApplyJob(YamlPath);
+                LogHelper.Write($"[K8s] Job 啟動成功");
                 // --- 4. 等待與下載 (Polling 核心) ---
                 // 最多等待 60 秒，每 3 秒檢查一次
                 int maxRetries = 20;
@@ -207,27 +212,7 @@ namespace ETF_Uploader
         {
 
         }
-        // 輔助函式：用來在背景執行 CMD 指令
-        private void RunCommand(string command)
-        {
-            System.Diagnostics.ProcessStartInfo processInfo = new System.Diagnostics.ProcessStartInfo("cmd.exe", "/c " + command);
-            processInfo.CreateNoWindow = true;         // 不顯示黑視窗
-            processInfo.UseShellExecute = false;       // 不使用作業系統外殼啟動
-            processInfo.RedirectStandardOutput = true; // 攔截輸出訊息
-            processInfo.RedirectStandardError = true;  // 攔截錯誤訊息
-
-            var process = System.Diagnostics.Process.Start(processInfo);
-            process.WaitForExit(); // 等待指令執行完畢
-
-            string output = process.StandardOutput.ReadToEnd();
-            string error = process.StandardError.ReadToEnd();
-
-            // 如果指令執行失敗 (ExitCode 不為 0)，拋出錯誤
-            if (process.ExitCode != 0)
-            {
-                throw new Exception($"指令錯誤: {error}\n(輸出: {output})");
-            }
-        }
+      
 
         // 專用函式：找出最新報告並下載
         private bool TryDownloadReport(DateTimeOffset minTime)
